@@ -1,9 +1,14 @@
-name: Test
+name: Test and Deploy
 
 on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: draw-guess-gam-production
+  cancel-in-progress: false
 
 jobs:
   test:
@@ -25,3 +30,15 @@ jobs:
       - name: Build frontend
         working-directory: frontend
         run: npm ci && npm run build
+
+  deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: [self-hosted, linux, x64, draw-guess-gam]
+    steps:
+      - name: Deploy draw-guess-gam
+        run: /home/ricky/deployments/scripts/deploy-app.sh draw-guess-gam
+      - name: Verify deployment
+        run: |
+          curl --fail --retry 12 --retry-delay 5 --retry-connrefused \
+            http://127.0.0.1:20941/api/health
