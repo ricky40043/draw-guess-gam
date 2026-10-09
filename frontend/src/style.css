@@ -1,0 +1,1198 @@
+@import url("https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap");
+:root {
+  --paper: #fbf7ee;
+  --card: #ffffff;
+  --ink: #231f20;
+  --muted: #7a7266;
+  --line: #e7dfcf;
+  --marker: #ffd23f;
+  --marker-soft: #fff1b8;
+  --red: #e4572e;
+  --green: #2fa24f;
+  --green-soft: #e3f5e7;
+  --blue: #2e86de;
+  --radius: 18px;
+  --shadow: 0 2px 0 var(--ink);
+  font-family: "Noto Sans TC", system-ui, sans-serif;
+  color: var(--ink);
+  background: var(--paper);
+  color-scheme: light;
+  -webkit-text-size-adjust: 100%;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background:
+    radial-gradient(circle at 1px 1px, #e9e1cf 1px, transparent 0) 0 0 / 22px 22px,
+    var(--paper);
+}
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+button {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+button:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 3px;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.muted {
+  color: var(--muted);
+}
+.small {
+  font-size: 13px;
+}
+.center {
+  text-align: center;
+  margin-inline: auto;
+}
+.eyebrow {
+  font-family: "Baloo 2", sans-serif;
+  font-weight: 800;
+  letter-spacing: 2px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.tag {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 99px;
+  background: var(--ink);
+  color: var(--marker);
+  font-size: 12px;
+  font-weight: 700;
+  vertical-align: middle;
+}
+.tag.big {
+  font-size: 18px;
+  padding: 4px 16px;
+}
+.hl {
+  background: linear-gradient(transparent 55%, var(--marker) 55%);
+  padding: 0 4px;
+}
+
+/* ---------- 按鈕 ---------- */
+.primary,
+.ghost,
+.text-btn {
+  border-radius: 999px;
+  font-weight: 700;
+  transition: transform 0.08s;
+}
+.primary {
+  border: 2px solid var(--ink);
+  background: var(--marker);
+  padding: 10px 20px;
+  box-shadow: var(--shadow);
+}
+.primary:active:not(:disabled),
+.ghost:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: none;
+}
+.primary.big {
+  display: inline-flex;
+  justify-content: center;
+  padding: 14px 28px;
+  font-size: 18px;
+}
+.ghost {
+  border: 2px solid var(--ink);
+  background: var(--card);
+  padding: 8px 16px;
+  box-shadow: var(--shadow);
+}
+.text-btn {
+  border: 0;
+  background: none;
+  text-decoration: underline;
+  padding: 6px 8px;
+}
+.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.btn-row.center {
+  justify-content: center;
+}
+
+/* ---------- 版面 ---------- */
+.app {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 16px calc(24px + env(safe-area-inset-bottom, 0px));
+}
+.app.wide {
+  max-width: 1680px;
+}
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0;
+  flex-wrap: wrap;
+}
+.logo {
+  font-weight: 900;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.logo-mark {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--marker);
+  border: 2px solid var(--ink);
+  font-size: 20px;
+  transform: rotate(-6deg);
+}
+.room-code {
+  font-family: "Baloo 2", sans-serif;
+  font-size: 14px;
+  color: var(--muted);
+}
+.room-code b {
+  color: var(--ink);
+  letter-spacing: 1px;
+}
+.spacer {
+  flex: 1;
+}
+.conn {
+  color: var(--red);
+  font-size: 13px;
+}
+.me-chip {
+  background: var(--card);
+  border: 2px solid var(--ink);
+  border-radius: 99px;
+  padding: 3px 12px;
+  font-weight: 700;
+  font-size: 14px;
+}
+.toast {
+  position: fixed;
+  left: 50%;
+  top: calc(12px + env(safe-area-inset-top, 0px));
+  transform: translateX(-50%);
+  z-index: 50;
+  background: var(--ink);
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 99px;
+  font-size: 14px;
+  max-width: calc(100% - 32px);
+  box-shadow: 0 6px 20px #0003;
+}
+.panel {
+  background: var(--card);
+  border: 2px solid var(--ink);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: 4px 4px 0 var(--ink);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.panel.center {
+  max-width: 420px;
+  align-items: center;
+}
+.lonely {
+  margin-top: 12vh;
+}
+fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+legend,
+.field > span {
+  font-weight: 700;
+  margin-bottom: 8px;
+  display: block;
+}
+.field input,
+.field select,
+.join-code input,
+.guess-box input {
+  width: 100%;
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: #fff;
+  font-size: 16px;
+}
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+}
+
+/* ---------- 建立房間 ---------- */
+.setup {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: 40px;
+  align-items: start;
+  padding-top: 24px;
+}
+.hero h1 {
+  font-size: clamp(44px, 7vw, 84px);
+  font-weight: 900;
+  line-height: 1.12;
+  margin: 10px 0 18px;
+  letter-spacing: -1px;
+}
+.lead {
+  font-size: 17px;
+  line-height: 1.7;
+  color: #4b443b;
+  max-width: 34em;
+}
+.how {
+  list-style: none;
+  padding: 0;
+  margin: 26px 0 0;
+  display: grid;
+  gap: 10px;
+}
+.how li {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  font-weight: 500;
+}
+.how b {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid var(--ink);
+  background: #fff;
+  font-family: "Baloo 2", sans-serif;
+  flex: none;
+}
+.choice-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.choice {
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  cursor: pointer;
+  position: relative;
+}
+.choice small {
+  color: var(--muted);
+  line-height: 1.4;
+}
+.choice.on {
+  border-color: var(--ink);
+  background: var(--marker-soft);
+  box-shadow: var(--shadow);
+}
+.choice:has(input:focus-visible),
+.pill:has(input:focus-visible),
+.group-pick:has(input:focus-visible) {
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
+}
+.pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.pill {
+  border: 2px solid var(--line);
+  border-radius: 99px;
+  padding: 6px 14px;
+  cursor: pointer;
+  position: relative;
+  font-weight: 500;
+}
+.pill.on {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: #fff;
+}
+.join-code {
+  grid-column: 2;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.join-code label {
+  font-weight: 700;
+}
+.join-code input {
+  flex: 1;
+  min-width: 140px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+/* ---------- 加入 ---------- */
+.join {
+  max-width: 460px;
+  margin: 4vh auto 0;
+}
+.notice {
+  background: var(--marker-soft);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 14px;
+}
+.group-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+  gap: 10px;
+}
+.group-pick {
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  padding: 14px 8px;
+  text-align: center;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.group-pick b {
+  font-size: 22px;
+}
+.group-pick small {
+  color: var(--muted);
+}
+.group-pick.on {
+  background: var(--marker);
+  border-color: var(--ink);
+  box-shadow: var(--shadow);
+}
+
+/* ---------- 大廳 ---------- */
+.lobby-host {
+  display: grid;
+  grid-template-columns: minmax(300px, 520px) 1fr;
+  gap: 32px;
+  align-items: start;
+  padding-top: 8px;
+}
+.qr-panel {
+  background: var(--card);
+  border: 2px solid var(--ink);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 6px 6px 0 var(--ink);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: sticky;
+  top: 12px;
+}
+.qr {
+  width: 100%;
+  aspect-ratio: 1;
+  image-rendering: pixelated;
+}
+.link-row {
+  display: flex;
+  gap: 8px;
+}
+.link-text {
+  flex: 1;
+  min-width: 0;
+  border: 2px solid var(--line);
+  background: var(--paper);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 14px;
+  text-align: center;
+}
+.link-row .primary {
+  white-space: nowrap;
+  padding: 8px 16px;
+}
+.rule-chips {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.rule-chips li {
+  border: 2px solid var(--ink);
+  border-radius: 99px;
+  padding: 2px 12px;
+  font-weight: 700;
+  font-size: 14px;
+}
+.roster header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.roster h2 {
+  font-size: 28px;
+}
+.roster h2 b {
+  font-family: "Baloo 2", sans-serif;
+  font-size: 44px;
+  background: linear-gradient(transparent 60%, var(--marker) 60%);
+}
+.roster-groups.team {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+.roster-group {
+  background: var(--card);
+  border: 2px solid var(--ink);
+  border-radius: var(--radius);
+  padding: 14px;
+}
+.roster-group h3 {
+  margin-bottom: 10px;
+}
+.roster-group h3 small {
+  color: var(--muted);
+  font-weight: 500;
+  font-size: 14px;
+}
+.roster-group ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.roster-group li {
+  background: var(--paper);
+  border-radius: 99px;
+  padding: 6px 14px;
+  font-weight: 700;
+  animation: pop 0.3s ease-out;
+}
+.roster-group li.offline {
+  opacity: 0.45;
+}
+.roster-group li.empty {
+  background: none;
+  color: var(--muted);
+  font-weight: 400;
+}
+@keyframes pop {
+  from {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+}
+.lobby-player {
+  padding-top: 6vh;
+}
+.avatar-blob {
+  font-size: 56px;
+  width: 104px;
+  height: 104px;
+  display: grid;
+  place-items: center;
+  background: var(--marker);
+  border: 2px solid var(--ink);
+  border-radius: 46% 54% 50% 50% / 55% 45% 55% 45%;
+}
+
+/* ---------- 遊戲中 ---------- */
+.statusbar {
+  display: flex;
+  align-items: center;
+  gap: 10px 16px;
+  flex-wrap: wrap;
+  background: var(--card);
+  border: 2px solid var(--ink);
+  border-radius: 14px;
+  padding: 8px 14px;
+  margin-bottom: 14px;
+}
+.statusbar .who {
+  flex: 1;
+  min-width: 0;
+}
+.round b {
+  font-family: "Baloo 2", sans-serif;
+  font-size: 20px;
+}
+.timer {
+  font-family: "Baloo 2", sans-serif;
+  font-weight: 800;
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+  padding: 0 12px;
+  border-radius: 10px;
+  background: var(--marker-soft);
+}
+.timer.urgent {
+  background: var(--red);
+  color: #fff;
+  animation: pulse 1s infinite;
+}
+.timer.done {
+  background: var(--green-soft);
+}
+@keyframes pulse {
+  50% {
+    transform: scale(1.08);
+  }
+}
+.hint {
+  color: var(--muted);
+  font-size: 14px;
+  margin: 10px 0;
+}
+.hint.big {
+  color: var(--ink);
+  font-size: 18px;
+  text-align: center;
+}
+.side h3 {
+  font-size: 15px;
+  margin: 4px 0 8px;
+}
+.side h3 + * {
+  margin-bottom: 18px;
+}
+
+.host-stage {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  grid-template-areas:
+    "tools side"
+    "grid side";
+  gap: 14px 20px;
+  align-items: start;
+}
+.host-tools {
+  grid-area: tools;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.host-stage .canvas-grid {
+  grid-area: grid;
+}
+.host-stage .side {
+  grid-area: side;
+}
+.canvas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+}
+.canvas-grid.few {
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+}
+.canvas-grid.two {
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+.canvas-card {
+  margin: 0;
+  background: var(--card);
+  border: 2px solid var(--ink);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: transform 0.2s;
+}
+.canvas-card.correct {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px var(--green);
+}
+.canvas-card.offline {
+  opacity: 0.5;
+}
+.canvas-zoom {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: #fff;
+}
+.ink {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  background: #fff;
+}
+.ink.editable {
+  touch-action: none;
+  cursor: crosshair;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.canvas-card figcaption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 6px 8px;
+  border-top: 2px solid var(--ink);
+  min-height: 40px;
+}
+.cname {
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.badge.ok {
+  color: var(--green);
+  font-weight: 900;
+  white-space: nowrap;
+}
+.award {
+  border: 2px solid var(--ink);
+  background: var(--marker);
+  border-radius: 99px;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 3px 10px;
+  white-space: nowrap;
+}
+
+/* 猜題訊息 */
+.feed {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+}
+.feed li {
+  background: var(--card);
+  border-radius: 10px;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  word-break: break-word;
+}
+.feed li.correct {
+  background: var(--green-soft);
+  border-color: var(--green);
+  font-weight: 700;
+}
+.feed b {
+  margin-right: 4px;
+}
+.feed em {
+  color: var(--green);
+  font-style: normal;
+  font-family: "Baloo 2", sans-serif;
+  margin-left: 4px;
+}
+.feed-empty {
+  color: var(--muted);
+}
+.guess-text {
+  margin-left: 4px;
+}
+
+/* 分數 */
+.scoreboard ol {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.player-scores li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  background: var(--card);
+  border-radius: 10px;
+}
+.player-scores li.me {
+  background: var(--marker-soft);
+}
+.player-scores li.offline {
+  opacity: 0.5;
+}
+.player-scores .rank {
+  font-family: "Baloo 2", sans-serif;
+  color: var(--muted);
+  width: 1.4em;
+}
+.player-scores .pname {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.player-scores b,
+.team-scores b {
+  font-family: "Baloo 2", sans-serif;
+  font-size: 20px;
+}
+.team-scores li {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 2px 10px;
+  align-items: center;
+  padding: 8px 12px;
+  background: var(--card);
+  border: 2px solid var(--line);
+  border-radius: 12px;
+}
+.team-scores li.active {
+  border-color: var(--ink);
+  background: var(--marker-soft);
+}
+.team-name {
+  font-weight: 900;
+}
+.team-members {
+  font-size: 12px;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 描述者 */
+.prompt-card,
+.answer-card {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  background: var(--card);
+  border: 2px solid var(--ink);
+  border-radius: 20px;
+  padding: 16px;
+  box-shadow: 4px 4px 0 var(--ink);
+}
+.prompt-card > div,
+.answer-card > div {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+.prompt-card h2,
+.answer {
+  font-size: 34px;
+  font-weight: 900;
+}
+.prompt-art {
+  width: 150px;
+  height: 150px;
+  flex: none;
+  background: var(--marker-soft);
+  border-radius: 16px;
+  padding: 8px;
+  color: var(--ink);
+}
+
+/* 畫畫 */
+.drawer-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.pad {
+  width: min(100%, calc(100dvh - 330px), 640px);
+  min-width: min(100%, 280px);
+  border: 2px solid var(--ink);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 4px 4px 0 var(--ink);
+}
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  max-width: 640px;
+}
+.swatch {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--ink);
+}
+.swatch.on {
+  box-shadow:
+    0 0 0 3px var(--paper),
+    0 0 0 5px var(--ink);
+}
+.size {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 2px solid var(--line);
+  background: var(--card);
+  display: grid;
+  place-items: center;
+}
+.size i {
+  display: block;
+  background: var(--ink);
+  border-radius: 50%;
+}
+.size.on,
+.tool.on {
+  border-color: var(--ink);
+  background: var(--marker);
+}
+.tool {
+  border: 2px solid var(--line);
+  background: var(--card);
+  border-radius: 10px;
+  padding: 5px 10px;
+  font-weight: 700;
+  font-size: 14px;
+}
+.tool.danger {
+  background: var(--red);
+  border-color: var(--red);
+  color: #fff;
+}
+.sep {
+  width: 1px;
+  height: 24px;
+  background: var(--line);
+}
+.guess-box {
+  display: flex;
+  gap: 8px;
+  width: min(100%, 640px);
+}
+.guess-box input {
+  flex: 1;
+  min-width: 0;
+}
+.guess-done {
+  background: var(--green-soft);
+  border: 2px solid var(--green);
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-weight: 700;
+  width: min(100%, 640px);
+  text-align: center;
+}
+.drawer-stage .feed,
+.mates {
+  width: min(100%, 640px);
+}
+.mate-strip {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 120px;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+.mate-strip .canvas-card figcaption {
+  min-height: 0;
+  padding: 3px 6px;
+  font-size: 12px;
+}
+.watch-stage .guess-box,
+.watch-stage .guess-done {
+  margin: 0 auto 14px;
+}
+
+/* 揭曉 */
+.reveal-stage {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  grid-template-areas:
+    "answer side"
+    "gallery side";
+  gap: 16px 20px;
+  align-items: start;
+}
+.answer-card {
+  grid-area: answer;
+  animation: pop 0.4s ease-out;
+}
+.answer-card .prompt-art {
+  width: 180px;
+  height: 180px;
+}
+.answer {
+  font-size: 48px;
+}
+.answer-card .primary {
+  align-self: flex-start;
+  margin-top: 6px;
+}
+.gallery {
+  grid-area: gallery;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+}
+.reveal-stage .side {
+  grid-area: side;
+}
+
+/* 放大 */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: #231f20bb;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  z-index: 40;
+}
+.zoom {
+  background: var(--card);
+  border: 2px solid var(--ink);
+  border-radius: 18px;
+  padding: 12px;
+  width: min(100%, 86dvh, 760px);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.zoom header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 18px;
+}
+.zoom .ink {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.close {
+  border: 0;
+  background: none;
+  font-size: 30px;
+  line-height: 1;
+  padding: 0 6px;
+}
+.mini-qr {
+  position: fixed;
+  right: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  background: #fff;
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+  padding: 6px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  z-index: 10;
+}
+.mini-qr img {
+  width: 96px;
+  display: block;
+}
+
+/* 結算 */
+.finished {
+  text-align: center;
+  padding-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-items: center;
+}
+.finished h1 {
+  font-size: clamp(36px, 6vw, 60px);
+  font-weight: 900;
+}
+.podium {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.podium li {
+  background: var(--card);
+  border: 2px solid var(--ink);
+  border-radius: 18px;
+  padding: 16px 22px;
+  min-width: 150px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: 4px 4px 0 var(--ink);
+}
+.podium .place-1 {
+  background: var(--marker);
+  padding-block: 30px;
+  order: -1;
+}
+.medal {
+  font-size: 40px;
+}
+.podium b {
+  font-size: 22px;
+}
+.pts {
+  font-family: "Baloo 2", sans-serif;
+  font-size: 20px;
+}
+.final-table {
+  width: min(100%, 560px);
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.final-team {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+.final-team h3 {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* ---------- 窄螢幕 ---------- */
+@media (min-width: 761px) {
+  .podium .place-1 {
+    order: 0;
+  }
+  .podium li:nth-child(1) {
+    order: 2;
+  }
+  .podium li:nth-child(2) {
+    order: 1;
+  }
+  .podium li:nth-child(3) {
+    order: 3;
+  }
+}
+@media (max-width: 960px) {
+  .setup,
+  .lobby-host {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .join-code {
+    grid-column: 1;
+  }
+  .qr-panel {
+    position: static;
+    max-width: 460px;
+    margin: 0 auto;
+    width: 100%;
+  }
+  .host-stage,
+  .reveal-stage {
+    grid-template-columns: 1fr;
+    grid-template-areas: "tools" "grid" "side";
+  }
+  .reveal-stage {
+    grid-template-areas: "answer" "gallery" "side";
+  }
+}
+@media (max-width: 560px) {
+  .topbar {
+    padding: 10px 0;
+  }
+  .room-code {
+    display: none;
+  }
+  .panel {
+    padding: 18px;
+  }
+  .choice-row {
+    grid-template-columns: 1fr;
+  }
+  .prompt-card,
+  .answer-card {
+    flex-direction: column;
+    text-align: center;
+  }
+  .prompt-card .btn-row {
+    justify-content: center;
+  }
+  .answer-card .primary {
+    align-self: center;
+  }
+  .prompt-art {
+    width: 55vw;
+    height: 55vw;
+    max-width: 220px;
+    max-height: 220px;
+  }
+  .answer {
+    font-size: 36px;
+  }
+  .mini-qr {
+    display: none;
+  }
+  .statusbar {
+    font-size: 14px;
+    padding: 6px 10px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

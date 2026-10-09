@@ -1,0 +1,83 @@
+<script setup lang="ts">
+import { computed, onMounted, ref, watch } from "vue";
+import QRCode from "qrcode";
+import { useGame } from "./store";
+import SetupView from "./views/SetupView.vue";
+import JoinView from "./views/JoinView.vue";
+import LobbyView from "./views/LobbyView.vue";
+import GameView from "./views/GameView.vue";
+import FinishedView from "./views/FinishedView.vue";
+
+const game = useGame();
+const params = new URLSearchParams(location.search);
+const joinRoomId = (params.get("room") || "").toUpperCase();
+const baseUrl = ref(location.origin);
+const promptCount = ref(0);
+const qr = ref("");
+const joinUrl = computed(() => (game.room ? `${baseUrl.value}/?room=${game.room.id}` : ""));
+const status = computed(() => game.room?.status);
+
+watch(
+  joinUrl,
+  async (url) => {
+    if (!url) return;
+    qr.value = await QRCode.toDataURL(url, { width: 640, margin: 1, color: { dark: "#231f20", light: "#ffffff" } });
+  },
+  { immediate: true },
+);
+onMounted(async () => {
+  game.init();
+  try {
+    const config = await (await fetch("/api/config")).json();
+    if (config.frontendUrl) baseUrl.value = config.frontendUrl.replace(/\/$/, "");
+    promptCount.value = config.prompts;
+  } catch {
+    /* 用目前網址 */
+  }
+});
+function exit() {
+  if (game.host && status.value === "playing" && !confirmExit.value) {
+    confirmExit.value = true;
+    setTimeout(() => (confirmExit.value = false), 3000);
+    return;
+  }
+  if (game.host && status.value === "playing") game.send({ type: "end" });
+  else game.leave();
+}
+const confirmExit = ref(false);
+</script>
+<template>
+  <div class="app" :class="{ wide: game.host }">
+    <header class="topbar">
+      <a class="logo" href="/" aria-label="你畫我猜 首頁"><span class="logo-mark">✎</span>你畫我猜</a>
+      <span v-if="game.room" class="room-code">ROOM <b>{{ game.room.id }}</b></span>
+      <span class="spacer" />
+      <span v-if="!game.connected" class="conn">連線中…</span>
+      <span v-if="game.me" class="me-chip">{{ game.me.name }}<small v-if="game.me.group"> · {{ game.me.group }}</small></span>
+      <button v-if="game.host && status === 'playing'" class="text-btn" @click="exit">
+        {{ confirmExit ? "確定提前結束？" : "結束遊戲" }}
+      </button>
+    </header>
+    <p v-if="game.error" class="toast" role="alert">{{ game.error }}</p>
+
+    <template v-if="!game.room">
+      <main v-if="game.fatal" class="panel center lonely">
+        <h2>無法回到房間</h2>
+        <p class="muted">{{ game.error || "房間可能已過期。" }}</p>
+        <a class="primary big" :href="joinRoomId ? `/?room=${joinRoomId}` : '/'">重新加入</a>
+      </main>
+      <p v-else-if="!game.ready" class="muted center lonely">連線中…</p>
+      <JoinView v-else-if="joinRoomId" :room-id="joinRoomId" />
+      <SetupView v-else :prompt-count="promptCount" />
+    </template>
+    <LobbyView v-else-if="status === 'lobby'" :join-url="joinUrl" :qr="qr" />
+    <template v-else-if="status === 'playing' && game.turn">
+      <GameView />
+      <aside v-if="game.host" class="mini-qr" :title="joinUrl">
+        <img v-if="qr" :src="qr" alt="加入 QR Code" />
+        <span>中途加入</span>
+      </aside>
+    </template>
+    <FinishedView v-else-if="status === 'finished'" />
+  </div>
+</template>
