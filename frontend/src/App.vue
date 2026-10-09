@@ -58,7 +58,7 @@ function leaveToHome() {
 const roomGone = computed(() => game.error.includes("找不到房間"));
 </script>
 <template>
-  <div class="app" :class="{ wide: game.host }">
+  <div class="app" :class="{ wide: game.host, fit: game.host && status === 'lobby' }">
     <header class="topbar">
       <a class="logo" href="/" aria-label="你畫我猜 首頁"><span class="logo-mark">✎</span>你畫我猜</a>
       <span v-if="game.room" class="room-code">ROOM <b>{{ game.room.id }}</b></span>

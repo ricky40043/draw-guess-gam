@@ -442,28 +442,35 @@ legend,
 }
 
 /* ---------- 大廳 ---------- */
+/* 白板大廳：整頁剛好一個畫面，左右兩欄上下緣對齊 */
+.app.fit {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+}
 .lobby-host {
-  /* 白板一個畫面看完：扣掉頂列與底部留白，QR Code 依高度縮放 */
-  --qr: clamp(150px, calc(100dvh - 330px), 340px);
+  --qr: clamp(150px, calc(100dvh - 300px), 360px);
+  --card-shadow: 4px 4px 0 var(--ink);
+  flex: 1;
+  min-height: 0;
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 24px;
-  height: calc(100dvh - 90px - env(safe-area-inset-top, 0px));
-  min-height: 460px;
 }
 .qr-panel {
-  width: calc(var(--qr) + 44px);
-  align-self: start;
+  width: calc(var(--qr) + 48px);
   background: var(--card);
   border: 2px solid var(--ink);
   border-radius: 20px;
-  padding: 18px 20px;
-  box-shadow: 4px 4px 0 var(--ink);
+  padding: 20px 22px;
+  box-shadow: var(--card-shadow);
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
+  gap: 12px;
 }
 .qr {
   width: var(--qr);
@@ -505,7 +512,7 @@ legend,
 .lobby-main {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 20px;
   min-height: 0;
 }
 .lobby-head {
@@ -534,17 +541,24 @@ legend,
   font-size: 30px;
   line-height: 1;
 }
+/* 名單卡片撐滿中間，和左邊 QR 卡片一起延伸到底 */
 .roster-groups {
   flex: 1;
   min-height: 90px;
   overflow-y: auto;
   align-content: start;
+  background: var(--card);
+  border: 2px solid var(--ink);
+  border-radius: 20px;
+  box-shadow: var(--card-shadow);
+  padding: 18px 20px;
 }
 .rules-card {
-  background: var(--card);
-  border: 2px dashed var(--line);
-  border-radius: 16px;
-  padding: 14px 18px;
+  background: var(--marker-soft);
+  border: 2px solid var(--ink);
+  border-radius: 20px;
+  box-shadow: var(--card-shadow);
+  padding: 16px 20px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -605,11 +619,10 @@ legend,
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 14px;
 }
-.roster-group {
-  background: var(--card);
-  border: 2px solid var(--ink);
-  border-radius: var(--radius);
-  padding: 14px;
+.roster-groups.team .roster-group {
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  padding: 12px 14px;
 }
 .roster-group h3 {
   margin-bottom: 10px;
@@ -1247,14 +1260,16 @@ legend,
   .join-code {
     grid-column: 1;
   }
+  .app.fit {
+    height: auto;
+    display: block;
+  }
   .lobby-host {
     --qr: min(70vw, 300px);
-    height: auto;
   }
   .qr-panel {
     width: min(100%, 420px);
     margin: 0 auto;
-    align-self: auto;
   }
   .roster-groups {
     overflow: visible;
