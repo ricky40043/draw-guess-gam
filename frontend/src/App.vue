@@ -45,6 +45,17 @@ function exit() {
   else game.leave();
 }
 const confirmExit = ref(false);
+// 離開回首頁：保留身分，之後重新掃碼或從首頁「回到房間」會回到同一個房間、同一個身分
+const confirmLeave = ref(false);
+function leaveToHome() {
+  if (!confirmLeave.value) {
+    confirmLeave.value = true;
+    setTimeout(() => (confirmLeave.value = false), 3000);
+    return;
+  }
+  game.leave(true);
+}
+const roomGone = computed(() => game.error.includes("找不到房間"));
 </script>
 <template>
   <div class="app" :class="{ wide: game.host }">
@@ -57,14 +68,23 @@ const confirmExit = ref(false);
       <button v-if="game.host && status === 'playing'" class="text-btn" @click="exit">
         {{ confirmExit ? "確定提前結束？" : "結束遊戲" }}
       </button>
+      <button v-if="game.room" class="ghost small-btn" :class="{ warn: confirmLeave }" @click="leaveToHome">
+        {{ confirmLeave ? "再按一次離開" : "離開 ↩" }}
+      </button>
     </header>
-    <p v-if="game.error" class="toast" role="alert">{{ game.error }}</p>
+    <p v-if="game.error && !game.fatal" class="toast" role="alert">{{ game.error }}</p>
 
     <template v-if="!game.room">
       <main v-if="game.fatal" class="panel center lonely">
-        <h2>無法回到房間</h2>
-        <p class="muted">{{ game.error || "房間可能已過期。" }}</p>
-        <a class="primary big" :href="joinRoomId ? `/?room=${joinRoomId}` : '/'">重新加入</a>
+        <div class="avatar-blob">{{ roomGone ? "🏚️" : "🤔" }}</div>
+        <h2>{{ roomGone ? "這個房間已經不存在了" : "無法回到房間" }}</h2>
+        <p class="muted">
+          {{ roomGone ? "房間可能已結束、閒置太久被清除，或伺服器重新啟動過。" : game.error }}
+        </p>
+        <div class="btn-row center">
+          <a v-if="joinRoomId && !roomGone" class="primary big" :href="`/?room=${joinRoomId}`">重新加入</a>
+          <a :class="roomGone ? 'primary big' : 'ghost'" href="/">回首頁</a>
+        </div>
       </main>
       <p v-else-if="!game.ready" class="muted center lonely">連線中…</p>
       <JoinView v-else-if="joinRoomId" :room-id="joinRoomId" />

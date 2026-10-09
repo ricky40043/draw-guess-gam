@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { reactive, ref } from "vue";
-import { useGame, type Settings } from "../store";
+import { onMounted, reactive, ref } from "vue";
+import { forgetRoom, recentSessions, useGame, type Settings } from "../store";
 defineProps<{ promptCount: number }>();
 const game = useGame();
 const settings = reactive<Settings>({ mode: "solo", rounds: 10, seconds: 120, groups: 2, joinMode: "name" });
@@ -12,16 +12,43 @@ const secondOptions = [
   { v: 180, label: "3 分鐘" },
   { v: 0, label: "不限時" },
 ];
+// 之前加入過、而且還存在的房間
+const resumable = ref<{ room: string; host: boolean; status: string }[]>([]);
+const statusText: Record<string, string> = { lobby: "等待開始", playing: "遊戲中", finished: "已結束" };
+onMounted(async () => {
+  const found = [];
+  for (const s of recentSessions().slice(0, 4)) {
+    try {
+      const res = await fetch(`/api/rooms/${encodeURIComponent(s.room)}`);
+      if (res.status === 404) {
+        forgetRoom(s.room, s.host);
+        continue;
+      }
+      if (res.ok) found.push({ ...s, status: (await res.json()).status as string });
+    } catch {
+      /* 離線就不顯示 */
+    }
+  }
+  resumable.value = found;
+});
 function create() {
   game.send({ type: "create", settings: { ...settings, rounds: Number(settings.rounds) } });
 }
 function join() {
-  const id = code.value.trim().toUpperCase();
+  const id = code.value.replace(/\D/g, "");
   if (id) location.href = `/?room=${encodeURIComponent(id)}`;
 }
 </script>
 <template>
   <main class="setup">
+    <section v-if="resumable.length" class="resume-bar" aria-label="回到房間">
+      <div v-for="r in resumable" :key="r.room + r.host" class="resume-item">
+        <span>
+          你在房間 <b>{{ r.room }}</b>（{{ r.host ? "白板／主持人" : "玩家" }}）· {{ statusText[r.status] ?? r.status }}
+        </span>
+        <a class="primary" :href="`/?${r.host ? 'host' : 'room'}=${r.room}`">回到房間 →</a>
+      </div>
+    </section>
     <section class="hero">
       <p class="eyebrow">DRAW · DESCRIBE · GUESS</p>
       <h1>你<span class="hl">說</span>我畫<br />大家<span class="hl">猜</span></h1>
@@ -87,7 +114,15 @@ function join() {
     </form>
     <form class="join-code" @submit.prevent="join">
       <label for="code">已經有房號？</label>
-      <input id="code" v-model="code" maxlength="6" placeholder="輸入 6 碼房號" autocapitalize="characters" />
+      <input
+        id="code"
+        v-model="code"
+        maxlength="4"
+        placeholder="輸入 4 位數房號"
+        inputmode="numeric"
+        pattern="[0-9]{4}"
+        autocomplete="off"
+      />
       <button class="ghost">加入</button>
     </form>
   </main>

@@ -60,6 +60,61 @@ interface Session {
   room: string;
   token: string;
   host: boolean;
+  soft?: boolean;
+}
+
+// 身分同時存在 sessionStorage（同分頁重新整理）與 localStorage（關掉分頁、重新掃碼後回來）。
+const RECENT_MS = 12 * 60 * 60 * 1000;
+const KEY_RE = /^draw:([0-9A-Z]+):(host|player)$/;
+function storageKey(s: { room: string; host: boolean }) {
+  return `draw:${s.room}:${s.host ? "host" : "player"}`;
+}
+function readStore(kind: "local" | "session", key: string): (Session & { savedAt?: number }) | null {
+  try {
+    const store = kind === "local" ? localStorage : sessionStorage;
+    return JSON.parse(store.getItem(key) || "null");
+  } catch {
+    return null;
+  }
+}
+function saveSession(s: Session) {
+  const value = JSON.stringify({ room: s.room, token: s.token, host: s.host, savedAt: Date.now() });
+  for (const store of ["local", "session"] as const) {
+    try {
+      (store === "local" ? localStorage : sessionStorage).setItem(storageKey(s), value);
+    } catch {
+      /* 無痕模式或被封鎖：只是無法跨分頁恢復 */
+    }
+  }
+}
+function forgetSession(s: { room: string; host: boolean }) {
+  for (const store of ["local", "session"] as const) {
+    try {
+      (store === "local" ? localStorage : sessionStorage).removeItem(storageKey(s));
+    } catch {
+      /* 同上 */
+    }
+  }
+}
+/** 首頁「回到房間」用：12 小時內加入過的房間（不保證房間還在，呼叫端要再查一次）。 */
+export function recentSessions(): { room: string; host: boolean; savedAt: number }[] {
+  const list: { room: string; host: boolean; savedAt: number }[] = [];
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i) ?? "";
+      const m = KEY_RE.exec(key);
+      const v = m && readStore("local", key);
+      if (!m || !v?.savedAt) continue;
+      if (Date.now() - v.savedAt > RECENT_MS) localStorage.removeItem(key);
+      else list.push({ room: m[1], host: m[2] === "host", savedAt: v.savedAt });
+    }
+  } catch {
+    return [];
+  }
+  return list.sort((a, b) => b.savedAt - a.savedAt);
+}
+export function forgetRoom(room: string, host: boolean) {
+  forgetSession({ room, host });
 }
 
 const FLUSH_MS = 60;
@@ -137,9 +192,6 @@ export const useGame = defineStore("game", () => {
     busy.value = false;
     clearTimeout(pendingTimer);
   }
-  function storageKey(s: { room: string; host: boolean }) {
-    return `draw:${s.room}:${s.host ? "host" : "player"}`;
-  }
   function connect() {
     socket = new WebSocket(
       `${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/ws`,
@@ -180,24 +232,30 @@ export const useGame = defineStore("game", () => {
           }
           return;
         case "left":
-          if (session) sessionStorage.removeItem(storageKey(session));
+          if (session) forgetSession(session);
           session = undefined;
           settle();
           location.href = leaveReturnUrl;
           return;
         case "error":
-          error.value = data.message;
           settle();
           if (session && !ready.value) {
+            if (data.code === "in_use") {
+              // 這個身分在別的分頁上線中：當成新玩家，顯示加入表單
+              session = undefined;
+              ready.value = true;
+              return;
+            }
             fatal.value = true;
-            sessionStorage.removeItem(storageKey(session));
+            forgetSession(session);
             session = undefined;
             ready.value = true;
           }
+          error.value = data.message;
           return;
         case "session":
           session = { room: data.room, token: data.token, host: data.host };
-          sessionStorage.setItem(storageKey(session), JSON.stringify(session));
+          saveSession(session);
           history.replaceState({}, "", `/?${data.host ? "host" : "room"}=${data.room}`);
           return;
         case "state": {
@@ -219,13 +277,12 @@ export const useGame = defineStore("game", () => {
     const q = new URLSearchParams(location.search);
     const id = q.get("host") || q.get("room");
     if (id) {
-      try {
-        session =
-          JSON.parse(sessionStorage.getItem(storageKey({ room: id, host: q.has("host") })) || "null") ||
-          undefined;
-      } catch {
-        session = undefined;
-      }
+      const key = storageKey({ room: id.toUpperCase(), host: q.has("host") });
+      const tab = readStore("session", key);
+      const saved = readStore("local", key);
+      if (tab) session = { room: tab.room, token: tab.token, host: tab.host };
+      else if (saved && Date.now() - (saved.savedAt ?? 0) < RECENT_MS)
+        session = { room: saved.room, token: saved.token, host: saved.host, soft: true };
     }
     connect();
   }
@@ -297,13 +354,12 @@ export const useGame = defineStore("game", () => {
     sendRaw({ type: "guess", text });
   }
 
-  function leave() {
+  /** 回首頁。keep=true 時保留身分，之後可從首頁或重新掃碼回到同一個房間。 */
+  function leave(keep = false) {
     clearTimeout(retry);
     clearTimeout(pendingTimer);
-    if (session) {
-      sessionStorage.removeItem(storageKey(session));
-      session = undefined;
-    }
+    if (session && !keep) forgetSession(session);
+    session = undefined;
     if (socket) {
       socket.onclose = null;
       socket.close();

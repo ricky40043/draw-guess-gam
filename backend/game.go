@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"math/big"
 	"strings"
 	"time"
@@ -120,7 +121,10 @@ func token() string {
 	}
 	return hex.EncodeToString(b)
 }
-func nowMs() int64 { return time.Now().UnixMilli() }
+
+// newRoomID 產生 4 位數字房號（0000–9999），方便口頭報號碼；最多 500 房，空間足夠。
+func newRoomID() string { return fmt.Sprintf("%04d", randomIndex(10000)) }
+func nowMs() int64      { return time.Now().UnixMilli() }
 func randomIndex(length int) int {
 	v, err := rand.Int(rand.Reader, big.NewInt(int64(length)))
 	if err != nil {

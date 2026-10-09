@@ -46,8 +46,9 @@ async function copy() {
 <template>
   <main v-if="game.host" class="lobby-host">
     <section class="qr-panel">
-      <p class="eyebrow">掃描加入 · ROOM {{ room.id }}</p>
+      <p class="eyebrow">手機掃描加入</p>
       <img v-if="qr" :src="qr" alt="加入房間的 QR Code" class="qr" />
+      <p class="room-big">房號 <b>{{ room.id }}</b></p>
       <div class="link-row">
         <input
           ref="linkInput"
@@ -60,21 +61,10 @@ async function copy() {
         <button class="primary" @click="copy">{{ copied === "ok" ? "已複製 ✓" : "複製連結" }}</button>
       </div>
       <p v-if="copied === 'fail'" class="muted small">瀏覽器不讓自動複製，連結已幫你選取，請按 ⌘C / Ctrl+C。</p>
-      <ul class="rule-chips">
-        <li>{{ room.settings.mode === "team" ? `分組賽 · ${room.settings.groups} 組` : "個人賽" }}</li>
-        <li>{{ room.settings.rounds }} 回合</li>
-        <li>每回合 {{ secondsText }}</li>
-      </ul>
-      <p class="muted small score-rule">
-        <template v-if="room.settings.mode === 'team'">
-          計分：第一個猜對就結束本回合；同組猜對該隊 +5，別組搶答則搶答隊 +3、畫的那隊 +2
-        </template>
-        <template v-else>計分：依猜對順序 3／2／1 分；只要有人猜對，描述者 +1</template>
-      </p>
     </section>
-    <section class="roster">
-      <header>
-        <h2>已加入 <b>{{ room.players.length }}</b> 人</h2>
+    <section class="lobby-main">
+      <header class="lobby-head">
+        <h2>已加入 <span class="count">{{ room.players.length }}</span> 人</h2>
         <button class="primary big" :disabled="game.busy" @click="game.send({ type: 'start' })">開始遊戲 ▶</button>
       </header>
       <div class="roster-groups" :class="{ team: room.settings.mode === 'team' }">
@@ -85,6 +75,26 @@ async function copy() {
             <li v-if="!g.members.length" class="empty">等待加入…</li>
           </ul>
         </div>
+      </div>
+      <div class="rules-card">
+        <ul class="rule-chips">
+          <li>{{ room.settings.mode === "team" ? `分組賽 · ${room.settings.groups} 組` : "個人賽" }}</li>
+          <li>{{ room.settings.rounds }} 回合</li>
+          <li>每回合 {{ secondsText }}</li>
+        </ul>
+        <ol class="rule-steps">
+          <li><b>1</b><span>輪到的人看手機上的題目，<em>只能用講的</em>形容怎麼畫</span></li>
+          <li v-if="room.settings.mode === 'team'"><b>2</b><span>同組的人照著畫，其他組看畫搶答</span></li>
+          <li v-else><b>2</b><span>其他人照著畫，邊畫邊打字或喊出答案</span></li>
+          <li><b>3</b><span>用喊的猜中，由描述者或白板點「判定答對」</span></li>
+        </ol>
+        <p class="score-rule">
+          <b>計分</b>
+          <template v-if="room.settings.mode === 'team'">
+            第一個猜對就結束本回合；同組猜對該隊 +5，別組搶答則搶答隊 +3、畫的那隊 +2
+          </template>
+          <template v-else>依猜對順序 3／2／1 分；只要有人猜對，描述者 +1</template>
+        </p>
       </div>
     </section>
   </main>

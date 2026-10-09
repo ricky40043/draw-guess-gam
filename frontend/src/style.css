@@ -371,6 +371,38 @@ legend,
   letter-spacing: 2px;
 }
 
+.resume-bar {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.resume-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  background: var(--marker-soft);
+  border: 2px solid var(--ink);
+  border-radius: 14px;
+  padding: 10px 14px;
+}
+.resume-item b {
+  font-family: "Baloo 2", sans-serif;
+  font-size: 20px;
+  letter-spacing: 1px;
+}
+.small-btn {
+  padding: 4px 12px;
+  font-size: 14px;
+}
+.small-btn.warn {
+  background: var(--red);
+  border-color: var(--red);
+  color: #fff;
+}
+
 /* ---------- 加入 ---------- */
 .join {
   max-width: 460px;
@@ -411,33 +443,49 @@ legend,
 
 /* ---------- 大廳 ---------- */
 .lobby-host {
+  /* 白板一個畫面看完：扣掉頂列與底部留白，QR Code 依高度縮放 */
+  --qr: clamp(150px, calc(100dvh - 330px), 340px);
   display: grid;
-  grid-template-columns: minmax(300px, 520px) 1fr;
-  gap: 32px;
-  align-items: start;
-  padding-top: 8px;
+  grid-template-columns: auto 1fr;
+  gap: 24px;
+  height: calc(100dvh - 90px - env(safe-area-inset-top, 0px));
+  min-height: 460px;
 }
 .qr-panel {
+  width: calc(var(--qr) + 44px);
+  align-self: start;
   background: var(--card);
   border: 2px solid var(--ink);
-  border-radius: 24px;
-  padding: 24px;
-  box-shadow: 6px 6px 0 var(--ink);
+  border-radius: 20px;
+  padding: 18px 20px;
+  box-shadow: 4px 4px 0 var(--ink);
   text-align: center;
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  position: sticky;
-  top: 12px;
+  align-items: center;
+  gap: 10px;
 }
 .qr {
-  width: 100%;
-  aspect-ratio: 1;
+  width: var(--qr);
+  height: var(--qr);
   image-rendering: pixelated;
+}
+.room-big {
+  font-size: 14px;
+  color: var(--muted);
+}
+.room-big b {
+  font-family: "Baloo 2", sans-serif;
+  font-size: 30px;
+  letter-spacing: 3px;
+  color: var(--ink);
+  vertical-align: -3px;
+  margin-left: 4px;
 }
 .link-row {
   display: flex;
   gap: 8px;
+  width: 100%;
 }
 .link-text {
   flex: 1;
@@ -445,45 +493,112 @@ legend,
   border: 2px solid var(--line);
   background: var(--paper);
   border-radius: 10px;
-  padding: 8px 10px;
-  font-size: 14px;
-  text-align: center;
+  padding: 6px 8px;
+  font-size: 13px;
+  text-overflow: ellipsis;
 }
 .link-row .primary {
   white-space: nowrap;
-  padding: 8px 16px;
+  padding: 6px 14px;
+  font-size: 14px;
+}
+.lobby-main {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+}
+.lobby-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.lobby-head h2 {
+  font-size: 26px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 52px;
+  height: 52px;
+  padding: 0 10px;
+  border-radius: 14px;
+  background: var(--marker);
+  border: 2px solid var(--ink);
+  font-family: "Baloo 2", sans-serif;
+  font-size: 30px;
+  line-height: 1;
+}
+.roster-groups {
+  flex: 1;
+  min-height: 90px;
+  overflow-y: auto;
+  align-content: start;
+}
+.rules-card {
+  background: var(--card);
+  border: 2px dashed var(--line);
+  border-radius: 16px;
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 .rule-chips {
   list-style: none;
   padding: 0;
   margin: 0;
   display: flex;
-  justify-content: center;
   gap: 8px;
   flex-wrap: wrap;
 }
 .rule-chips li {
   border: 2px solid var(--ink);
   border-radius: 99px;
-  padding: 2px 12px;
+  padding: 1px 12px;
   font-weight: 700;
   font-size: 14px;
 }
-.roster header {
+.rule-steps {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 6px;
+  font-size: 15px;
+}
+.rule-steps li {
   display: flex;
-  justify-content: space-between;
+  gap: 10px;
   align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
-  margin-bottom: 20px;
 }
-.roster h2 {
-  font-size: 28px;
-}
-.roster h2 b {
+.rule-steps b {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  flex: none;
+  border-radius: 50%;
+  border: 2px solid var(--ink);
   font-family: "Baloo 2", sans-serif;
-  font-size: 44px;
-  background: linear-gradient(transparent 60%, var(--marker) 60%);
+  font-size: 13px;
+}
+.rule-steps em {
+  font-style: normal;
+  background: linear-gradient(transparent 55%, var(--marker) 55%);
+}
+.score-rule {
+  font-size: 14px;
+  color: #4b443b;
+}
+.score-rule b {
+  color: var(--ink);
+  margin-right: 6px;
 }
 .roster-groups.team {
   display: grid;
@@ -1132,11 +1247,17 @@ legend,
   .join-code {
     grid-column: 1;
   }
+  .lobby-host {
+    --qr: min(70vw, 300px);
+    height: auto;
+  }
   .qr-panel {
-    position: static;
-    max-width: 460px;
+    width: min(100%, 420px);
     margin: 0 auto;
-    width: 100%;
+    align-self: auto;
+  }
+  .roster-groups {
+    overflow: visible;
   }
   .host-stage,
   .reveal-stage {

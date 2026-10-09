@@ -41,6 +41,8 @@ type Message struct {
 	Color    string   `json:"c"`
 	Width    int      `json:"w"`
 	Pts      []int    `json:"pts"`
+	// Soft：身分來自 localStorage（關掉分頁後再回來），而不是同一個分頁重新整理。
+	Soft bool `json:"soft"`
 }
 
 func NewServer() *Server { return &Server{rooms: map[string]*Room{}, clients: map[*Client]bool{}} }
@@ -159,9 +161,9 @@ func (s *Server) enter(c *Client, m Message) error {
 		if len(s.rooms) >= 500 {
 			return errMsg("目前房間已滿，請稍後再試")
 		}
-		id := strings.ToUpper(token()[:6])
+		id := newRoomID()
 		for s.rooms[id] != nil {
-			id = strings.ToUpper(token()[:6])
+			id = newRoomID()
 		}
 		var err error
 		if r, err = newRoom(id, m.Settings); err != nil {
@@ -186,6 +188,11 @@ func (s *Server) enter(c *Client, m Message) error {
 				}
 				if c.player == nil {
 					return errMsg("無法恢復身分，請重新加入")
+				}
+				// 同一台裝置開了多個分頁時，別把正在線上的玩家搶過來
+				if m.Soft && s.playerOnline(c.player, c) {
+					c.player = nil
+					return errInUse
 				}
 			}
 		} else {
@@ -225,6 +232,19 @@ func (s *Server) enter(c *Client, m Message) error {
 	return nil
 }
 
+// errInUse：這個身分正在其他分頁使用中，前端改顯示加入表單。
+var errInUse = errMsg("這個身分正在其他分頁使用中")
+
+// playerOnline：除了 self 以外，是否還有連線正在使用這位玩家的身分。
+func (s *Server) playerOnline(p *Player, self *Client) bool {
+	for c := range s.clients {
+		if c != self && c.player == p {
+			return true
+		}
+	}
+	return false
+}
+
 type errMsg string
 
 func (e errMsg) Error() string { return string(e) }
@@ -238,7 +258,9 @@ func (s *Server) handle(c *Client, m Message) {
 			fail(errMsg("已經加入房間"))
 			return
 		}
-		if err := s.enter(c, m); err != nil {
+		if err := s.enter(c, m); err == errInUse {
+			c.emit(map[string]any{"type": "error", "message": err.Error(), "code": "in_use"})
+		} else if err != nil {
 			fail(err)
 		}
 		return

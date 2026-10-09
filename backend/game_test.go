@@ -374,3 +374,59 @@ func mustJSON(v any) string {
 	b, _ := json.Marshal(v)
 	return string(b)
 }
+
+func TestRoomID(t *testing.T) {
+	for i := 0; i < 500; i++ {
+		id := newRoomID()
+		if len(id) != 4 || strings.Trim(id, "0123456789") != "" {
+			t.Fatalf("房號應為 4 位數字，得到 %q", id)
+		}
+	}
+}
+
+func TestRejoinSameRoom(t *testing.T) {
+	s := NewServer()
+	srv := httptest.NewServer(s.router())
+	defer srv.Close()
+	host := dial(t, srv)
+	host.send(map[string]any{"type": "create", "settings": map[string]any{"rounds": 2}})
+	room := host.wait("session")["room"].(string)
+
+	first := dial(t, srv)
+	first.send(map[string]any{"type": "join", "room": room, "name": "小明"})
+	token := first.wait("session")["token"].(string)
+	id := first.wait("state")["me"].(map[string]any)["id"]
+
+	// 同一個身分還在別的分頁上線：軟性恢復要被拒絕，不能搶走
+	other := dial(t, srv)
+	other.send(map[string]any{"type": "resume", "room": room, "token": token, "soft": true})
+	if e := other.wait("error"); e["code"] != "in_use" {
+		t.Fatalf("應回 in_use：%v", e)
+	}
+
+	// 關掉分頁後再回來：回到同一個房間、同一個身分，不會多一個玩家
+	first.conn.Close()
+	time.Sleep(100 * time.Millisecond)
+	back := dial(t, srv)
+	back.send(map[string]any{"type": "resume", "room": room, "token": token, "soft": true})
+	back.wait("session")
+	st := back.wait("state")
+	if st["me"].(map[string]any)["id"] != id || len(st["room"].(map[string]any)["players"].([]any)) != 1 {
+		t.Fatalf("應恢復同一位玩家且沒有重複：%v", st["room"])
+	}
+
+	// 白板離開再回來
+	host.conn.Close()
+	hostBack := dial(t, srv)
+	hostBack.send(map[string]any{"type": "resume", "room": room, "token": s.rooms[room].HostToken, "soft": true})
+	if hostBack.wait("session")["host"] != true {
+		t.Fatal("白板應能回到房間")
+	}
+
+	// 房間不在了
+	gone := dial(t, srv)
+	gone.send(map[string]any{"type": "resume", "room": "0000", "token": token, "soft": true})
+	if msg := gone.wait("error")["message"].(string); !strings.Contains(msg, "找不到房間") {
+		t.Fatalf("房間不存在應明確告知：%s", msg)
+	}
+}
